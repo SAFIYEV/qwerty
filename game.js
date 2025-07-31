@@ -7,8 +7,21 @@ const GameData = {
         1: { killed: 0, completed: false },
         2: { score: 0, completed: false },
         3: { time: 0, completed: false },
-        4: { completed: false }, // Telegram
-        5: { completed: false }  // Share
+        6: { killed: 0, completed: false },
+        7: { score: 0, completed: false },
+        8: { time: 0, completed: false },
+        9: { multiKill: 0, completed: false },
+        10: { reloads: 0, completed: false },
+        11: { killed: 0, completed: false },
+        12: { timeNoDamage: 0, completed: false },
+        13: { bullets: 0, completed: false },
+        14: { score: 0, completed: false },
+        15: { streak: 0, completed: false },
+        16: { completed: false },
+        17: { completed: false },
+        18: { completed: false },
+        19: { completed: false },
+        20: { completed: false }
     },
     
     save() {
@@ -55,22 +68,18 @@ class ZombieShooter {
         // Загрузка текстуры земли
         const textureLoader = new THREE.TextureLoader();
         this.groundTexture = textureLoader.load('texture.png', 
-            // Функция успешной загрузки
             (texture) => {
                 texture.wrapS = THREE.RepeatWrapping;
                 texture.wrapT = THREE.RepeatWrapping;
                 texture.repeat.set(4, 4);
-                // Обновляем материал пола после загрузки текстуры
                 if (this.floor) {
                     this.floor.material.map = texture;
                     this.floor.material.needsUpdate = true;
                 }
             },
-            // Функция прогресса загрузки
             (progress) => {
                 console.log('Загрузка текстуры: ' + (progress.loaded / progress.total * 100) + '%');
             },
-            // Функция ошибки
             (error) => {
                 console.error('Ошибка загрузки текстуры:', error);
             }
@@ -85,6 +94,11 @@ class ZombieShooter {
         this.bullets = [];
         this.gameTime = 0;
         this.zombiesKilled = 0;
+        this.reloadCount = 0;
+        this.bulletsSpent = 0;
+        this.noDamageTime = 0;
+        this.killStreak = 0;
+        this.maxKillStreak = 0;
         
         // Управление
         this.moveForward = false;
@@ -92,6 +106,8 @@ class ZombieShooter {
         this.moveLeft = false;
         this.moveRight = false;
         this.canShoot = true;
+        this.isRotating = false;
+        this.rotationDirection = 0;
         
         // Настройка сцены
         this.setupScene();
@@ -106,7 +122,6 @@ class ZombieShooter {
     }
     
     setupScene() {
-        // Создание неба
         const skyGeometry = new THREE.SphereGeometry(50, 32, 32);
         const skyMaterial = new THREE.MeshBasicMaterial({
             color: 0x87CEEB,
@@ -115,49 +130,40 @@ class ZombieShooter {
         const sky = new THREE.Mesh(skyGeometry, skyMaterial);
         this.scene.add(sky);
 
-        // Создание пола с текстурой
         const floorGeometry = new THREE.PlaneGeometry(100, 100);
         const floorMaterial = new THREE.MeshStandardMaterial({
             map: this.groundTexture,
             roughness: 0.8,
-            color: 0x666666 // Цвет по умолчанию, пока текстура не загрузится
+            color: 0x666666
         });
         this.floor = new THREE.Mesh(floorGeometry, floorMaterial);
         this.floor.rotation.x = -Math.PI / 2;
         this.scene.add(this.floor);
         
-        // Создание ландшафта (темно-зеленые прямоугольники)
         const terrainGeometry = new THREE.PlaneGeometry(20, 20);
         const terrainMaterial = new THREE.MeshStandardMaterial({
             color: 0x1a472a,
             roughness: 0.9
         });
         
-        // Первая база
         const base1 = new THREE.Mesh(terrainGeometry, terrainMaterial);
         base1.position.set(-15, 0.1, -15);
         base1.rotation.x = -Math.PI / 2;
         this.scene.add(base1);
         
-        // Вторая база
         const base2 = new THREE.Mesh(terrainGeometry, terrainMaterial);
         base2.position.set(15, 0.1, 15);
         base2.rotation.x = -Math.PI / 2;
         this.scene.add(base2);
 
-        // Добавление деревьев
         for (let i = 0; i < 20; i++) {
-            // Создаем группу для дерева
             const tree = new THREE.Group();
-            
-            // Создаем ствол
             const trunkGeometry = new THREE.CylinderGeometry(0.1, 0.15, 2, 8);
             const trunkMaterial = new THREE.MeshStandardMaterial({ color: 0x4a2f10 });
             const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
             trunk.position.y = 1;
             tree.add(trunk);
             
-            // Создаем крону (несколько слоев)
             const crownLayers = 3;
             for (let j = 0; j < crownLayers; j++) {
                 const crownGeometry = new THREE.ConeGeometry(0.8 - j * 0.2, 1.5, 8);
@@ -167,13 +173,10 @@ class ZombieShooter {
                 tree.add(crown);
             }
             
-            // Случайное размещение деревьев
             const angle = Math.random() * Math.PI * 2;
             const distance = 5 + Math.random() * 15;
             tree.position.x = Math.cos(angle) * distance;
             tree.position.z = Math.sin(angle) * distance;
-            
-            // Добавляем случайный поворот для разнообразия
             tree.rotation.y = Math.random() * Math.PI;
             
             this.scene.add(tree);
@@ -181,13 +184,11 @@ class ZombieShooter {
             this.trees.push(tree);
         }
 
-        // Добавление камней
         for (let i = 0; i < 15; i++) {
             const rockGeometry = new THREE.DodecahedronGeometry(0.5);
             const rockMaterial = new THREE.MeshStandardMaterial({ color: 0x808080 });
             const rock = new THREE.Mesh(rockGeometry, rockMaterial);
             
-            // Случайное размещение камней
             const angle = Math.random() * Math.PI * 2;
             const distance = 5 + Math.random() * 15;
             rock.position.x = Math.cos(angle) * distance;
@@ -201,38 +202,32 @@ class ZombieShooter {
     }
     
     setupLights() {
-        // Усиленное фоновое освещение для дневного эффекта
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
         this.scene.add(ambientLight);
         
-        // Основной солнечный свет
         const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
         directionalLight.position.set(5, 10, 5);
         this.scene.add(directionalLight);
         
-        // Дополнительный свет для лучшего освещения
         const secondaryLight = new THREE.DirectionalLight(0xffffff, 0.5);
         secondaryLight.position.set(-5, 8, -5);
         this.scene.add(secondaryLight);
     }
     
     setupPlayer() {
-        this.camera.position.y = 1.6; // Высота глаз
+        this.camera.position.y = 1.6;
         this.camera.position.z = 5;
         
-        // Создание оружия
         const gunGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.3);
         const gunMaterial = new THREE.MeshStandardMaterial({ color: 0x333333 });
         this.gun = new THREE.Mesh(gunGeometry, gunMaterial);
         
-        // Позиционирование оружия относительно камеры
         this.gun.position.set(0.3, -0.2, -0.5);
         this.camera.add(this.gun);
         this.scene.add(this.camera);
     }
     
     setupControls() {
-        // Настройка джойстика
         const joystick = document.getElementById('joystick');
         const joystickHead = document.getElementById('joystick-head');
         let isDragging = false;
@@ -250,7 +245,6 @@ class ZombieShooter {
             const deltaX = e.touches[0].clientX - startX;
             const deltaY = e.touches[0].clientY - startY;
             
-            // Ограничение движения джойстика
             const maxDistance = 35;
             const distance = Math.min(Math.sqrt(deltaX * deltaX + deltaY * deltaY), maxDistance);
             const angle = Math.atan2(deltaY, deltaX);
@@ -260,24 +254,25 @@ class ZombieShooter {
             
             joystickHead.style.transform = `translate(${moveX}px, ${moveY}px)`;
             
-            // Обновление движения игрока
             this.moveForward = moveY < -10;
             this.moveBackward = moveY > 10;
             this.moveLeft = moveX < -10;
             this.moveRight = moveX > 10;
+            
+            // Поворот головы
+            this.rotationDirection = moveX / maxDistance;
         });
         
         document.addEventListener('touchend', () => {
             isDragging = false;
             joystickHead.style.transform = '';
             this.moveForward = this.moveBackward = this.moveLeft = this.moveRight = false;
+            this.rotationDirection = 0;
         });
         
-        // Кнопка стрельбы
         const shootBtn = document.getElementById('shoot-btn');
         shootBtn.addEventListener('touchstart', () => this.shoot());
         
-        // Кнопка перезарядки
         const reloadBtn = document.getElementById('reload-btn');
         reloadBtn.addEventListener('touchstart', () => this.reload());
     }
@@ -285,11 +280,11 @@ class ZombieShooter {
     shoot() {
         if (!this.canShoot || this.ammo <= 0) return;
         
-        // Воспроизведение звука выстрела
         this.shootSound.currentTime = 0;
         this.shootSound.play();
         
         this.ammo--;
+        this.bulletsSpent++;
         document.getElementById('ammo-count').textContent = this.ammo;
         
         const bulletGeometry = new THREE.SphereGeometry(0.05);
@@ -308,26 +303,39 @@ class ZombieShooter {
         
         this.canShoot = false;
         setTimeout(() => this.canShoot = true, 250);
+        
+        // Обновление миссии 13
+        if (!GameData.missions[13].completed) {
+            GameData.missions[13].bullets = this.bulletsSpent;
+            if (this.bulletsSpent >= 100) {
+                this.completeMission(13);
+            }
+        }
     }
     
     reload() {
         if (this.ammo === 30) return;
         
-        // Анимация перезарядки
         setTimeout(() => {
             this.ammo = 30;
+            this.reloadCount++;
             document.getElementById('ammo-count').textContent = this.ammo;
-            // this.playSound('reload');
+            
+            // Обновление миссии 10
+            if (!GameData.missions[10].completed) {
+                GameData.missions[10].reloads = this.reloadCount;
+                if (this.reloadCount >= 20) {
+                    this.completeMission(10);
+                }
+            }
         }, 1500);
     }
     
     spawnZombie() {
-        // Создание зомби
         const zombieGeometry = new THREE.BoxGeometry(0.6, 1.8, 0.3);
         const zombieMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
         const zombie = new THREE.Mesh(zombieGeometry, zombieMaterial);
         
-        // Случайная позиция появления
         const angle = Math.random() * Math.PI * 2;
         const distance = 15 + Math.random() * 10;
         zombie.position.x = Math.cos(angle) * distance;
@@ -358,8 +366,8 @@ class ZombieShooter {
             zombie.lookAt(this.camera.position);
             
             if (zombie.position.distanceTo(this.camera.position) < 1.5) {
-                // Уменьшаем урон от зомби
                 this.health -= 0.1;
+                this.noDamageTime = 0;
                 document.getElementById('health-count').textContent = Math.ceil(this.health);
                 
                 if (this.health <= 0) {
@@ -370,6 +378,8 @@ class ZombieShooter {
     }
     
     updateBullets() {
+        let zombiesHitByBullet = 0;
+        
         for (let i = this.bullets.length - 1; i >= 0; i--) {
             const bullet = this.bullets[i];
             bullet.position.add(bullet.velocity);
@@ -377,18 +387,20 @@ class ZombieShooter {
             for (let j = this.zombies.length - 1; j >= 0; j--) {
                 const zombie = this.zombies[j];
                 if (bullet.position.distanceTo(zombie.position) < 1) {
-                    this.scene.remove(bullet);
-                    this.bullets.splice(i, 1);
-                    
+                    zombiesHitByBullet++;
                     zombie.health -= 50 * GameData.damageMultiplier;
+                    
                     if (zombie.health <= 0) {
                         this.scene.remove(zombie);
                         this.zombies.splice(j, 1);
                         this.score += 100;
                         this.zombiesKilled++;
+                        this.killStreak++;
+                        this.maxKillStreak = Math.max(this.maxKillStreak, this.killStreak);
+                        
                         document.getElementById('score-count').textContent = this.score;
                         
-                        // Обновление прогресса заданий
+                        // Обновление миссий
                         if (!GameData.missions[1].completed) {
                             GameData.missions[1].killed = this.zombiesKilled;
                             if (this.zombiesKilled >= 10) {
@@ -396,12 +408,44 @@ class ZombieShooter {
                             }
                         }
                         
+                        if (!GameData.missions[6].completed) {
+                            GameData.missions[6].killed = this.zombiesKilled;
+                            if (this.zombiesKilled >= 50) {
+                                this.completeMission(6);
+                            }
+                        }
+                        
+                        if (!GameData.missions[11].completed) {
+                            GameData.missions[11].killed = this.zombiesKilled;
+                            if (this.zombiesKilled >= 100) {
+                                this.completeMission(11);
+                            }
+                        }
+                        
+                        if (!GameData.missions[15].completed) {
+                            GameData.missions[15].streak = this.maxKillStreak;
+                            if (this.maxKillStreak >= 5) {
+                                this.completeMission(15);
+                            }
+                        }
+                        
                         if (!GameData.missions[2].completed && this.score >= 1000) {
                             this.completeMission(2);
                         }
+                        
+                        if (!GameData.missions[7].completed && this.score >= 5000) {
+                            this.completeMission(7);
+                        }
+                        
+                        if (!GameData.missions[14].completed && this.score >= 10000) {
+                            this.completeMission(14);
+                        }
                     }
-                    break;
                 }
+            }
+            
+            if (zombiesHitByBullet >= 3 && !GameData.missions[9].completed) {
+                this.completeMission(9);
             }
             
             if (bullet.position.length() > 50) {
@@ -412,19 +456,20 @@ class ZombieShooter {
     }
     
     updateMovement() {
-        const speed = 0.05; // Уменьшаем скорость движения
+        const speed = 0.05;
+        const rotationSpeed = 0.05;
         const direction = new THREE.Vector3();
         
-        // Сохраняем текущую позицию
         const oldPosition = this.camera.position.clone();
         
-        // Обновляем позицию
         if (this.moveForward) this.camera.position.z -= speed;
         if (this.moveBackward) this.camera.position.z += speed;
         if (this.moveLeft) this.camera.position.x -= speed;
         if (this.moveRight) this.camera.position.x += speed;
         
-        // Проверяем коллизии с деревьями
+        // Поворот камеры
+        this.camera.rotation.y -= this.rotationDirection * rotationSpeed;
+        
         if (this.trees) {
             for (const tree of this.trees) {
                 const distance = this.camera.position.distanceTo(tree.position);
@@ -434,7 +479,6 @@ class ZombieShooter {
             }
         }
         
-        // Проверяем коллизии с камнями
         if (this.rocks) {
             for (const rock of this.rocks) {
                 const distance = this.camera.position.distanceTo(rock.position);
@@ -449,7 +493,17 @@ class ZombieShooter {
         const rewards = {
             1: 500,
             2: 1000,
-            3: 2000
+            3: 2000,
+            6: 2000,
+            7: 3000,
+            8: 4000,
+            9: 1500,
+            10: 1000,
+            11: 5000,
+            12: 2500,
+            13: 1500,
+            14: 6000,
+            15: 2000
         };
         
         GameData.missions[missionId].completed = true;
@@ -473,19 +527,42 @@ class ZombieShooter {
         this.lastTime = currentTime;
         
         this.gameTime += deltaTime;
+        if (this.health === GameData.maxHealth) {
+            this.noDamageTime += deltaTime;
+        }
         
-        // Обновление времени для задания выживания
+        // Обновление времени для заданий
         if (!GameData.missions[3].completed) {
             GameData.missions[3].time = this.gameTime;
-            if (this.gameTime >= 300) { // 5 минут
+            if (this.gameTime >= 300) {
                 this.completeMission(3);
             }
-            
-            // Обновление прогресса на UI
             const minutes = Math.floor(this.gameTime / 60);
             const seconds = Math.floor(this.gameTime % 60);
             const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}/5:00`;
             document.querySelector('.mission[data-id="3"] .progress').textContent = timeString;
+        }
+        
+        if (!GameData.missions[8].completed) {
+            GameData.missions[8].time = this.gameTime;
+            if (this.gameTime >= 600) {
+                this.completeMission(8);
+            }
+            const minutes = Math.floor(this.gameTime / 60);
+            const seconds = Math.floor(this.gameTime % 60);
+            const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}/10:00`;
+            document.querySelector('.mission[data-id="8"] .progress').textContent = timeString;
+        }
+        
+        if (!GameData.missions[12].completed) {
+            GameData.missions[12].timeNoDamage = this.noDamageTime;
+            if (this.noDamageTime >= 120) {
+                this.completeMission(12);
+            }
+            const minutes = Math.floor(this.noDamageTime / 60);
+            const seconds = Math.floor(this.noDamageTime % 60);
+            const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}/2:00`;
+            document.querySelector('.mission[data-id="12"] .progress').textContent = timeString;
         }
         
         this.updateMovement();
@@ -498,7 +575,6 @@ class ZombieShooter {
     gameOver() {
         this.isGameOver = true;
         
-        // Добавляем очки в общий баланс
         GameData.totalScore += this.score;
         GameData.save();
         
@@ -528,14 +604,24 @@ window.addEventListener('load', () => {
         }
         
         btn.addEventListener('click', () => {
-            if (missionId === '4') {
-                // Подтверждение подписки на Telegram
-                if (confirm('Вы подписались на канал @tonbakuhub?')) {
-                    completeSocialMission(4, 1500);
+            if (missionId === '16') {
+                if (confirm('Вы подписались на канал @SokoInu?')) {
+                    completeSocialMission(16, 1500);
                 }
-            } else if (missionId === '5') {
-                // Награда за шаринг
-                completeSocialMission(5, 1000);
+            } else if (missionId === '17') {
+                if (confirm('Вы подписались на канал @tonsocietycahub?')) {
+                    completeSocialMission(17, 1500);
+                }
+            } else if (missionId === '18') {
+                if (confirm('Вы подписались на @SokoinuTON в X?')) {
+                    completeSocialMission(18, 1000);
+                }
+            } else if (missionId === '19') {
+                if (confirm('Вы подписались на YouTube канал RealSokoInu?')) {
+                    completeSocialMission(19, 1000);
+                }
+            } else if (missionId === '20') {
+                completeSocialMission(20, 1000);
             }
         });
     });
@@ -549,7 +635,6 @@ window.addEventListener('load', () => {
                 url: window.location.href
             });
         } else {
-            // Запасной вариант для браузеров без API шаринга
             const shareText = `Zombie Shooter 3D - Попробуй крутой шутер с зомби! Я уже набрал ${GameData.totalScore} очков!\n${window.location.href}`;
             navigator.clipboard.writeText(shareText)
                 .then(() => alert('Ссылка скопирована в буфер обмена!'))
@@ -575,6 +660,23 @@ window.addEventListener('load', () => {
         updateShopUI();
     });
     
+    document.getElementById('language-btn').addEventListener('click', () => {
+        const lang = prompt('Выберите язык (en, ru, ja):');
+        if (lang === 'en') {
+            window.location.reload(); // Английский по умолчанию
+        } else if (lang === 'ru') {
+            // Переключение на русский
+            document.querySelectorAll('[data-ru]').forEach(el => {
+                el.textContent = el.dataset.ru;
+            });
+        } else if (lang === 'ja') {
+            // Переключение на японский
+            document.querySelectorAll('[data-ja]').forEach(el => {
+                el.textContent = el.dataset.ja;
+            });
+        }
+    });
+    
     document.getElementById('missions-back').addEventListener('click', () => {
         missions.classList.remove('active');
         menu.classList.add('active');
@@ -590,7 +692,11 @@ window.addEventListener('load', () => {
         menu.classList.add('active');
     });
     
-    // Обработчики покупок в магазине
+    document.getElementById('play-again').addEventListener('click', () => {
+        document.getElementById('game-over').classList.remove('active');
+        new ZombieShooter();
+    });
+    
     document.querySelectorAll('.buy-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const itemId = e.target.closest('.shop-item').dataset.id;
@@ -620,7 +726,7 @@ function updateMissionsUI() {
         if (missionElement) {
             const claimBtn = missionElement.querySelector('.claim-btn');
             
-            if (id <= 3) { // Игровые задания
+            if (id <= 15) {
                 const progressElement = missionElement.querySelector('.progress');
                 switch (id) {
                     case '1':
@@ -634,6 +740,42 @@ function updateMissionsUI() {
                         const seconds = Math.floor(mission.time % 60);
                         progressElement.textContent = 
                             `${minutes}:${seconds.toString().padStart(2, '0')}/5:00`;
+                        break;
+                    case '6':
+                        progressElement.textContent = `${mission.killed}/50`;
+                        break;
+                    case '7':
+                        progressElement.textContent = `${mission.score}/5000`;
+                        break;
+                    case '8':
+                        const minutes8 = Math.floor(mission.time / 60);
+                        const seconds8 = Math.floor(mission.time % 60);
+                        progressElement.textContent = 
+                            `${minutes8}:${seconds8.toString().padStart(2, '0')}/10:00`;
+                        break;
+                    case '9':
+                        progressElement.textContent = `${mission.multiKill}/1`;
+                        break;
+                    case '10':
+                        progressElement.textContent = `${mission.reloads}/20`;
+                        break;
+                    case '11':
+                        progressElement.textContent = `${mission.killed}/100`;
+                        break;
+                    case '12':
+                        const minutes12 = Math.floor(mission.timeNoDamage / 60);
+                        const seconds12 = Math.floor(mission.timeNoDamage % 60);
+                        progressElement.textContent = 
+                            `${minutes12}:${seconds12.toString().padStart(2, '0')}/2:00`;
+                        break;
+                    case '13':
+                        progressElement.textContent = `${mission.bullets}/100`;
+                        break;
+                    case '14':
+                        progressElement.textContent = `${mission.score}/10000`;
+                        break;
+                    case '15':
+                        progressElement.textContent = `${mission.streak}/5`;
                         break;
                 }
             }
@@ -681,7 +823,6 @@ function buyItem(itemId) {
     }
 }
 
-// Обработка изменения размера окна
 window.addEventListener('resize', () => {
     const game = document.querySelector('canvas').parentNode.__vue__;
     if (!game) return;
@@ -689,4 +830,4 @@ window.addEventListener('resize', () => {
     game.camera.aspect = window.innerWidth / window.innerHeight;
     game.camera.updateProjectionMatrix();
     game.renderer.setSize(window.innerWidth, window.innerHeight);
-}); 
+});
