@@ -243,6 +243,23 @@ class ZombieShooter {
             }
         );
         
+        // Загрузка текстуры зомби
+        this.zombieTexture = textureLoader.load('zombie.png', 
+            // Функция успешной загрузки
+            (texture) => {
+                console.log('Текстура зомби загружена успешно');
+            },
+            // Функция прогресса загрузки
+            (progress) => {
+                console.log('Загрузка текстуры зомби: ' + (progress.loaded / progress.total * 100) + '%');
+            },
+            // Функция ошибки
+            (error) => {
+                console.warn('Не удалось загрузить текстуру зомби, используем цвет по умолчанию:', error);
+                this.zombieTexture = null;
+            }
+        );
+        
         // Игровые переменные
         this.score = 0;
         this.health = GameData.maxHealth;
@@ -414,62 +431,48 @@ class ZombieShooter {
     }
     
     setupControls() {
-        // Настройка джойстика
-        const joystick = document.getElementById('joystick');
-        const joystickHead = document.getElementById('joystick-head');
-        let isDragging = false;
-        let startX, startY;
+        // Кнопки управления движением
+        const upBtn = document.getElementById('up-btn');
+        const downBtn = document.getElementById('down-btn');
+        const leftBtn = document.getElementById('left-btn');
+        const rightBtn = document.getElementById('right-btn');
         
-        joystick.addEventListener('touchstart', (e) => {
-            isDragging = true;
-            startX = e.touches[0].clientX;
-            startY = e.touches[0].clientY;
-        });
+        // Обработчики для кнопок движения
+        if (upBtn) {
+            upBtn.addEventListener('touchstart', () => this.moveForward = true);
+            upBtn.addEventListener('touchend', () => this.moveForward = false);
+        }
         
-        document.addEventListener('touchmove', (e) => {
-            if (!isDragging) return;
-            
-            const deltaX = e.touches[0].clientX - startX;
-            const deltaY = e.touches[0].clientY - startY;
-            
-            // Ограничение движения джойстика
-            const maxDistance = 35;
-            const distance = Math.min(Math.sqrt(deltaX * deltaX + deltaY * deltaY), maxDistance);
-            const angle = Math.atan2(deltaY, deltaX);
-            
-            const moveX = Math.cos(angle) * distance;
-            const moveY = Math.sin(angle) * distance;
-            
-            joystickHead.style.transform = `translate(${moveX}px, ${moveY}px)`;
-            
-            // Обновление движения игрока
-            this.moveForward = moveY < -10;
-            this.moveBackward = moveY > 10;
-            this.moveLeft = moveX < -10;
-            this.moveRight = moveX > 10;
-        });
+        if (downBtn) {
+            downBtn.addEventListener('touchstart', () => this.moveBackward = true);
+            downBtn.addEventListener('touchend', () => this.moveBackward = false);
+        }
         
-        document.addEventListener('touchend', () => {
-            isDragging = false;
-            joystickHead.style.transform = '';
-            this.moveForward = this.moveBackward = this.moveLeft = this.moveRight = false;
-        });
+        if (leftBtn) {
+            leftBtn.addEventListener('touchstart', () => this.moveLeft = true);
+            leftBtn.addEventListener('touchend', () => this.moveLeft = false);
+        }
+        
+        if (rightBtn) {
+            rightBtn.addEventListener('touchstart', () => this.moveRight = true);
+            rightBtn.addEventListener('touchend', () => this.moveRight = false);
+        }
         
         // Управление поворотом камеры
         let isRotating = false;
         let lastTouchX = 0;
         
         document.addEventListener('touchstart', (e) => {
-            if (e.touches.length === 1 && !isDragging) {
+            if (e.touches.length === 1) {
                 const touch = e.touches[0];
-                // Проверяем, что касание не в области джойстика и кнопок
-                const joystickArea = document.getElementById('joystick-area');
+                // Проверяем, что касание не в области кнопок управления
+                const movementButtons = document.getElementById('movement-buttons');
                 const actionButtons = document.getElementById('action-buttons');
                 
-                const joystickRect = joystickArea.getBoundingClientRect();
+                const movementRect = movementButtons.getBoundingClientRect();
                 const buttonsRect = actionButtons.getBoundingClientRect();
                 
-                if (!this.isPointInRect(touch.clientX, touch.clientY, joystickRect) &&
+                if (!this.isPointInRect(touch.clientX, touch.clientY, movementRect) &&
                     !this.isPointInRect(touch.clientX, touch.clientY, buttonsRect)) {
                     isRotating = true;
                     lastTouchX = touch.clientX;
@@ -559,7 +562,10 @@ class ZombieShooter {
     spawnZombie() {
         // Создание зомби
         const zombieGeometry = new THREE.BoxGeometry(0.6, 1.8, 0.3);
-        const zombieMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+        const zombieMaterial = new THREE.MeshStandardMaterial({ 
+            map: this.zombieTexture || null,
+            color: this.zombieTexture ? 0xffffff : 0x00ff00 // Белый цвет если есть текстура, зеленый если нет
+        });
         const zombie = new THREE.Mesh(zombieGeometry, zombieMaterial);
         
         // Случайная позиция появления
