@@ -27,6 +27,11 @@ const translations = {
         mission11: "Убить зомби с 1 выстрела",
         mission12: "Выжить с 10% здоровья",
         mission13: "Убить 3 зомби за 10 секунд",
+        mission19: "Убить 50 зомби за игру",
+        mission20: "Достичь комбо из 10 убийств",
+        mission21: "Выжить без перезарядки 2 минуты",
+        mission22: "Убить 15 зомби с полным здоровьем",
+        mission23: "Набрать 10000 очков за игру",
         mission14: "Подписаться на Telegram",
         mission15: "Подписаться на Telegram",
         mission16: "Подписаться на X",
@@ -42,6 +47,14 @@ const translations = {
         health_desc: "+20 к максимальному здоровью",
         damage_upgrade: "Увеличение урона",
         damage_desc: "+25% к урону",
+        firerate_upgrade: "Скорострельность",
+        firerate_desc: "-50мс к задержке выстрела",
+        ammo_upgrade: "Дополнительные патроны",
+        ammo_desc: "+10 к максимуму патронов",
+        speed_upgrade: "Скорость передвижения",
+        speed_desc: "+20% к скорости",
+        armor_upgrade: "Броня",
+        armor_desc: "-10% получаемого урона",
         price: "Цена",
         buy: "Купить",
         back: "НАЗАД",
@@ -84,6 +97,11 @@ const translations = {
         mission11: "Kill a zombie with 1 shot",
         mission12: "Survive with 10% health",
         mission13: "Kill 3 zombies in 10 seconds",
+        mission19: "Kill 50 zombies in one game",
+        mission20: "Achieve a 10-kill combo",
+        mission21: "Survive without reloading for 2 minutes",
+        mission22: "Kill 15 zombies with full health",
+        mission23: "Score 10000 points in one game",
         mission14: "Follow Telegram",
         mission15: "Follow Telegram",
         mission16: "Follow on X",
@@ -99,6 +117,14 @@ const translations = {
         health_desc: "+20 to max health",
         damage_upgrade: "Damage Upgrade",
         damage_desc: "+25% to damage",
+        firerate_upgrade: "Fire Rate",
+        firerate_desc: "-50ms to shot delay",
+        ammo_upgrade: "Extra Ammo",
+        ammo_desc: "+10 to max ammo",
+        speed_upgrade: "Movement Speed",
+        speed_desc: "+20% to speed",
+        armor_upgrade: "Armor",
+        armor_desc: "-10% damage taken",
         price: "Price",
         buy: "Buy",
         back: "BACK",
@@ -141,6 +167,11 @@ const translations = {
         mission11: "1発でゾンビを倒す",
         mission12: "10%のヘルスで生き残る",
         mission13: "10秒以内にゾンビ3体を倒す",
+        mission19: "1ゲームでゾンビ50体を倒す",
+        mission20: "10連続キルを達成",
+        mission21: "2分間リロードせずに生き残る",
+        mission22: "フルヘルスでゾンビ15体を倒す",
+        mission23: "1ゲームで10000ポイント獲得",
         mission14: "Telegramをフォロー",
         mission15: "Telegramをフォロー",
         mission16: "Xでフォロー",
@@ -156,6 +187,14 @@ const translations = {
         health_desc: "最大ヘルス+20",
         damage_upgrade: "ダメージ強化",
         damage_desc: "ダメージ+25%",
+        firerate_upgrade: "連射速度",
+        firerate_desc: "ショットの遅延-50ms",
+        ammo_upgrade: "追加弾薬",
+        ammo_desc: "最大弾薬+10",
+        speed_upgrade: "移動速度",
+        speed_desc: "速度+20%",
+        armor_upgrade: "アーマー",
+        armor_desc: "受けるダメージ-10%",
         price: "価格",
         buy: "購入",
         back: "戻る",
@@ -174,18 +213,26 @@ const translations = {
 
 let currentLanguage = 'ru';
 
-// Сохранение данных
 const GameData = {
     totalScore: 0,
     maxHealth: 100,
     damageMultiplier: 1,
+    shotDelay: 250,
+    maxAmmo: 30,
+    moveSpeed: 0.05,
+    damageReduction: 1,
     shotsFired: 0,
     reloads: 0,
     zombiesNoDamage: 0,
     collectedAmmo: 0,
     oneShotKills: 0,
     lowHealthSurvival: false,
-    quickKills: { count: 0, timer: 0 },
+    sessionZombies: 0,
+    killCombo: 0,
+    lastReloadTime: 0,
+    noReloadTime: 0,
+    fullHealthKills: 0,
+    sessionScore: 0,
     missions: {
         1: { killed: 0, completed: false },
         2: { score: 0, completed: false },
@@ -204,7 +251,12 @@ const GameData = {
         15: { completed: false },
         16: { completed: false },
         17: { completed: false },
-        18: { completed: false }
+        18: { completed: false },
+        19: { sessionKilled: 0, completed: false },
+        20: { combo: 0, completed: false },
+        21: { noReloadTime: 0, completed: false },
+        22: { fullHealthKills: 0, completed: false },
+        23: { sessionScore: 0, completed: false }
     },
     
     save() {
@@ -212,12 +264,22 @@ const GameData = {
             totalScore: this.totalScore,
             maxHealth: this.maxHealth,
             damageMultiplier: this.damageMultiplier,
+            shotDelay: this.shotDelay,
+            maxAmmo: this.maxAmmo,
+            moveSpeed: this.moveSpeed,
+            damageReduction: this.damageReduction,
             shotsFired: this.shotsFired,
             reloads: this.reloads,
             zombiesNoDamage: this.zombiesNoDamage,
             collectedAmmo: this.collectedAmmo,
             oneShotKills: this.oneShotKills,
             lowHealthSurvival: this.lowHealthSurvival,
+            sessionZombies: this.sessionZombies,
+            killCombo: this.killCombo,
+            lastReloadTime: this.lastReloadTime,
+            noReloadTime: this.noReloadTime,
+            fullHealthKills: this.fullHealthKills,
+            sessionScore: this.sessionScore,
             missions: this.missions
         }));
     },
@@ -229,12 +291,22 @@ const GameData = {
             this.totalScore = parsed.totalScore;
             this.maxHealth = parsed.maxHealth;
             this.damageMultiplier = parsed.damageMultiplier;
+            this.shotDelay = parsed.shotDelay || 250;
+            this.maxAmmo = parsed.maxAmmo || 30;
+            this.moveSpeed = parsed.moveSpeed || 0.05;
+            this.damageReduction = parsed.damageReduction || 1;
             this.shotsFired = parsed.shotsFired || 0;
             this.reloads = parsed.reloads || 0;
             this.zombiesNoDamage = parsed.zombiesNoDamage || 0;
             this.collectedAmmo = parsed.collectedAmmo || 0;
             this.oneShotKills = parsed.oneShotKills || 0;
             this.lowHealthSurvival = parsed.lowHealthSurvival || false;
+            this.sessionZombies = parsed.sessionZombies || 0;
+            this.killCombo = parsed.killCombo || 0;
+            this.lastReloadTime = parsed.lastReloadTime || 0;
+            this.noReloadTime = parsed.noReloadTime || 0;
+            this.fullHealthKills = parsed.fullHealthKills || 0;
+            this.sessionScore = parsed.sessionScore || 0;
             this.missions = parsed.missions;
         }
         this.updateUI();
@@ -280,7 +352,7 @@ class ZombieShooter {
         
         this.score = 0;
         this.health = GameData.maxHealth;
-        this.ammo = 30;
+        this.ammo = GameData.maxAmmo;
         this.isGameOver = false;
         this.zombies = [];
         this.bullets = [];
@@ -289,6 +361,13 @@ class ZombieShooter {
         this.initialHealth = this.health;
         this.quickKillTimer = 0;
         this.quickKills = 0;
+        this.sessionZombies = 0;
+        this.killCombo = 0;
+        this.lastReloadTime = 0;
+        this.noReloadTime = 0;
+        this.fullHealthKills = 0;
+        this.sessionScore = 0;
+        this.comboTimer = 0;
         
         this.moveForward = false;
         this.moveBackward = false;
@@ -417,24 +496,30 @@ class ZombieShooter {
         const lookJoystickHead = document.getElementById('look-joystick-head');
         let isDraggingMove = false;
         let isDraggingLook = false;
-        let startXMove, startYMove, startXLook, startYLook;
+        let startXMove, startYMove, startXLook;
         
-        joystick.addEventListener('touchstart', (e) => {
-            isDraggingMove = true;
-            startXMove = e.touches[0].clientX;
-            startYMove = e.touches[0].clientY;
-        });
-        
-        lookJoystick.addEventListener('touchstart', (e) => {
-            isDraggingLook = true;
-            startXLook = e.touches[0].clientX;
-            startYLook = e.touches[0].clientY;
-        });
+        const touchHandler = (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            if (e.target === joystick || e.target === joystickHead) {
+                isDraggingMove = true;
+                startXMove = touch.clientX;
+                startYMove = touch.clientY;
+            } else if (e.target === lookJoystick || e.target === lookJoystickHead) {
+                isDraggingLook = true;
+                startXLook = touch.clientX;
+            }
+        };
+
+        joystick.addEventListener('touchstart', touchHandler);
+        lookJoystick.addEventListener('touchstart', touchHandler);
         
         document.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
             if (isDraggingMove) {
-                const deltaX = e.touches[0].clientX - startXMove;
-                const deltaY = e.touches[0].clientY - startYMove;
+                const deltaX = touch.clientX - startXMove;
+                const deltaY = touch.clientY - startYMove;
                 const maxDistance = 35;
                 const distance = Math.min(Math.sqrt(deltaX * deltaX + deltaY * deltaY), maxDistance);
                 const angle = Math.atan2(deltaY, deltaX);
@@ -447,7 +532,7 @@ class ZombieShooter {
                 this.moveRight = moveX > 10;
             }
             if (isDraggingLook) {
-                const deltaX = e.touches[0].clientX - startXLook;
+                const deltaX = touch.clientX - startXLook;
                 const maxDistance = 35;
                 const distance = Math.min(Math.abs(deltaX), maxDistance);
                 const direction = deltaX > 0 ? 1 : -1;
@@ -459,12 +544,12 @@ class ZombieShooter {
         });
         
         document.addEventListener('touchend', (e) => {
-            if (isDraggingMove) {
+            if (isDraggingMove && !e.touches.length) {
                 isDraggingMove = false;
                 joystickHead.style.transform = '';
                 this.moveForward = this.moveBackward = this.moveLeft = this.moveRight = false;
             }
-            if (isDraggingLook) {
+            if (isDraggingLook && !e.touches.length) {
                 isDraggingLook = false;
                 lookJoystickHead.style.transform = '';
                 this.lookLeft = this.lookRight = false;
@@ -472,10 +557,16 @@ class ZombieShooter {
         });
         
         const shootBtn = document.getElementById('shoot-btn');
-        shootBtn.addEventListener('touchstart', () => this.shoot());
+        shootBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            this.shoot();
+        });
         
         const reloadBtn = document.getElementById('reload-btn');
-        reloadBtn.addEventListener('touchstart', () => this.reload());
+        reloadBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            this.reload();
+        });
     }
     
     shoot() {
@@ -503,7 +594,7 @@ class ZombieShooter {
         this.scene.add(bullet);
         
         this.canShoot = false;
-        setTimeout(() => this.canShoot = true, 250);
+        setTimeout(() => this.canShoot = true, GameData.shotDelay);
         
         if (!GameData.missions[7].completed) {
             GameData.missions[7].shots = GameData.shotsFired;
@@ -514,12 +605,13 @@ class ZombieShooter {
     }
     
     reload() {
-        if (this.ammo === 30) return;
+        if (this.ammo === GameData.maxAmmo) return;
         
+        this.lastReloadTime = this.gameTime;
         setTimeout(() => {
             const oldAmmo = this.ammo;
-            this.ammo = 30;
-            GameData.collectedAmmo += (30 - oldAmmo);
+            this.ammo = GameData.maxAmmo;
+            GameData.collectedAmmo += (GameData.maxAmmo - oldAmmo);
             GameData.reloads++;
             document.getElementById('ammo-count').textContent = `${translations[currentLanguage].ammo}: ${this.ammo}`;
             if (!GameData.missions[8].completed) {
@@ -550,7 +642,7 @@ class ZombieShooter {
         
         zombie.health = 100;
         this.zombies.push(zombie);
-        thisシーン.add(zombie);
+        this.scene.add(zombie);
     }
     
     spawnZombies() {
@@ -570,7 +662,7 @@ class ZombieShooter {
             zombie.lookAt(this.camera.position);
             
             if (zombie.position.distanceTo(this.camera.position) < 1.5) {
-                this.health -= 0.1;
+                this.health -= 0.1 * GameData.damageReduction;
                 document.getElementById('health-count').textContent = `${translations[currentLanguage].health}: ${Math.ceil(this.health)}`;
                 if (this.health <= 0) {
                     this.gameOver();
@@ -596,9 +688,16 @@ class ZombieShooter {
                         this.scene.remove(zombie);
                         this.zombies.splice(j, 1);
                         this.score += 100;
+                        this.sessionScore += 100;
                         this.zombiesKilled++;
+                        this.sessionZombies++;
+                        this.killCombo++;
+                        this.comboTimer = this.gameTime;
                         if (this.initialHealth === this.health) {
                             GameData.zombiesNoDamage++;
+                        }
+                        if (this.health === GameData.maxHealth) {
+                            this.fullHealthKills++;
                         }
                         if (damage >= 100) {
                             GameData.oneShotKills++;
@@ -616,6 +715,7 @@ class ZombieShooter {
                             }
                         }
                         if (!GameData.missions[2].completed && this.score >= 1000) {
+                            GameData.missions[2].score = this.score;
                             this.completeMission(2);
                         }
                         if (!GameData.missions[4].completed) {
@@ -625,6 +725,7 @@ class ZombieShooter {
                             }
                         }
                         if (!GameData.missions[5].completed && this.score >= 5000) {
+                            GameData.missions[5].score = this.score;
                             this.completeMission(5);
                         }
                         if (!GameData.missions[9].completed) {
@@ -634,10 +735,32 @@ class ZombieShooter {
                             }
                         }
                         if (!GameData.missions[11].completed && GameData.oneShotKills >= 1) {
+                            GameData.missions[11].oneShot = GameData.oneShotKills;
                             this.completeMission(11);
                         }
                         if (!GameData.missions[13].completed && this.quickKills >= 3 && this.gameTime - this.quickKillTimer <= 10) {
+                            GameData.missions[13].quickKills = this.quickKills;
                             this.completeMission(13);
+                        }
+                        if (!GameData.missions[19].completed) {
+                            GameData.missions[19].sessionKilled = this.sessionZombies;
+                            if (this.sessionZombies >= 50) {
+                                this.completeMission(19);
+                            }
+                        }
+                        if (!GameData.missions[20].completed && this.killCombo >= 10) {
+                            GameData.missions[20].combo = this.killCombo;
+                            this.completeMission(20);
+                        }
+                        if (!GameData.missions[22].completed) {
+                            GameData.missions[22].fullHealthKills = this.fullHealthKills;
+                            if (this.fullHealthKills >= 15) {
+                                this.completeMission(22);
+                            }
+                        }
+                        if (!GameData.missions[23].completed && this.sessionScore >= 10000) {
+                            GameData.missions[23].sessionScore = this.sessionScore;
+                            this.completeMission(23);
                         }
                     }
                     break;
@@ -652,16 +775,27 @@ class ZombieShooter {
     }
     
     updateMovement() {
-        const speed = 0.05;
+        const speed = GameData.moveSpeed;
         const rotationSpeed = 0.03;
-        const direction = new THREE.Vector3();
         
         const oldPosition = this.camera.position.clone();
         
-        if (this.moveForward) this.camera.position.z -= speed * Math.cos(this.camera.rotation.y);
-        if (this.moveBackward) this.camera.position.z += speed * Math.cos(this.camera.rotation.y);
-        if (this.moveLeft) this.camera.position.x -= speed * Math.sin(this.camera.rotation.y);
-        if (this.moveRight) this.camera.position.x += speed * Math.sin(this.camera.rotation.y);
+        if (this.moveForward) {
+            this.camera.position.z -= speed * Math.cos(this.camera.rotation.y);
+            this.camera.position.x -= speed * Math.sin(this.camera.rotation.y);
+        }
+        if (this.moveBackward) {
+            this.camera.position.z += speed * Math.cos(this.camera.rotation.y);
+            this.camera.position.x += speed * Math.sin(this.camera.rotation.y);
+        }
+        if (this.moveLeft) {
+            this.camera.position.x -= speed * Math.cos(this.camera.rotation.y);
+            this.camera.position.z += speed * Math.sin(this.camera.rotation.y);
+        }
+        if (this.moveRight) {
+            this.camera.position.x += speed * Math.cos(this.camera.rotation.y);
+            this.camera.position.z -= speed * Math.sin(this.camera.rotation.y);
+        }
         if (this.lookLeft) this.camera.rotation.y += rotationSpeed;
         if (this.lookRight) this.camera.rotation.y -= rotationSpeed;
         
@@ -698,7 +832,12 @@ class ZombieShooter {
             10: 1500,
             11: 1000,
             12: 2500,
-            13: 2000
+            13: 2000,
+            19: 5000,
+            20: 3000,
+            21: 2500,
+            22: 3500,
+            23: 6000
         };
         
         GameData.missions[missionId].completed = true;
@@ -746,14 +885,24 @@ class ZombieShooter {
             document.querySelector('.mission[data-id="6"] .progress').textContent = timeString;
         }
         
-        if (!GameData.missions[12].completed && this.health <= this.maxHealth * 0.1 && this.health > 0) {
-            GameData.lowHealthSurvival = true;
+        if (!GameData.missions[12].completed && this.health <= GameData.maxHealth * 0.1 && this.health > 0) {
+            GameData.missions[12].lowHealth = true;
             this.completeMission(12);
+        }
+        
+        if (!GameData.missions[21].completed && this.gameTime - this.lastReloadTime >= 120) {
+            GameData.missions[21].noReloadTime = this.gameTime - this.lastReloadTime;
+            this.completeMission(21);
         }
         
         if (this.quickKillTimer > 0 && this.gameTime - this.quickKillTimer > 10) {
             this.quickKills = 0;
             this.quickKillTimer = 0;
+        }
+        
+        if (this.comboTimer > 0 && this.gameTime - this.comboTimer > 5) {
+            this.killCombo = 0;
+            this.comboTimer = 0;
         }
         
         this.updateMovement();
@@ -788,13 +937,13 @@ function updateLanguage() {
     document.getElementById('missions-btn').textContent = translations[currentLanguage].missions;
     document.getElementById('shop-btn').textContent = translations[currentLanguage].shop;
     document.getElementById('language-btn').textContent = translations[currentLanguage].language;
-    document.getElementById('missions').querySelector('h2').textContent = translations[currentLanguage].missions_title;
+    document.getElementById('missions').querySelectorAll('h2')[0].textContent = translations[currentLanguage].missions_title;
     document.getElementById('missions').querySelectorAll('h2')[1].textContent = translations[currentLanguage].social_missions;
     document.querySelectorAll('.mission').forEach((mission, index) => {
         const id = mission.dataset.id;
         mission.querySelector('h3').textContent = translations[currentLanguage][`mission${id}`];
-        if (id <= 13) {
-            mission.querySelector('p').textContent = `${translations[currentLanguage].reward}: ${[500,1000,2000,1500,3000,4000,1000,800,2000,1500,1000,2500,2000][id-1]} ${translations[currentLanguage].points}`;
+        if (id <= 23 && id != 14 && id != 15 && id != 16 && id != 17 && id != 18) {
+            mission.querySelector('p').textContent = `${translations[currentLanguage].reward}: ${[500,1000,2000,1500,3000,4000,1000,800,2000,1500,1000,2500,2000,0,0,0,0,0,5000,3000,2500,3500,6000][id-1]} ${translations[currentLanguage].points}`;
             mission.querySelector('.claim-btn').textContent = translations[currentLanguage].claim;
         } else {
             mission.querySelector('p').textContent = `${translations[currentLanguage].reward}: ${[1500,1500,1000,2000,1000][id-14]} ${translations[currentLanguage].points}`;
@@ -810,6 +959,18 @@ function updateLanguage() {
     document.querySelector('.shop-item[data-id="2"] h3').textContent = translations[currentLanguage].damage_upgrade;
     document.querySelector('.shop-item[data-id="2"] p:nth-child(2)').textContent = translations[currentLanguage].damage_desc;
     document.querySelector('.shop-item[data-id="2"] p:nth-child(3)').textContent = `${translations[currentLanguage].price}: 2000 ${translations[currentLanguage].points}`;
+    document.querySelector('.shop-item[data-id="3"] h3').textContent = translations[currentLanguage].firerate_upgrade;
+    document.querySelector('.shop-item[data-id="3"] p:nth-child(2)').textContent = translations[currentLanguage].firerate_desc;
+    document.querySelector('.shop-item[data-id="3"] p:nth-child(3)').textContent = `${translations[currentLanguage].price}: 2500 ${translations[currentLanguage].points}`;
+    document.querySelector('.shop-item[data-id="4"] h3').textContent = translations[currentLanguage].ammo_upgrade;
+    document.querySelector('.shop-item[data-id="4"] p:nth-child(2)').textContent = translations[currentLanguage].ammo_desc;
+    document.querySelector('.shop-item[data-id="4"] p:nth-child(3)').textContent = `${translations[currentLanguage].price}: 1500 ${translations[currentLanguage].points}`;
+    document.querySelector('.shop-item[data-id="5"] h3').textContent = translations[currentLanguage].speed_upgrade;
+    document.querySelector('.shop-item[data-id="5"] p:nth-child(2)').textContent = translations[currentLanguage].speed_desc;
+    document.querySelector('.shop-item[data-id="5"] p:nth-child(3)').textContent = `${translations[currentLanguage].price}: 3000 ${translations[currentLanguage].points}`;
+    document.querySelector('.shop-item[data-id="6"] h3').textContent = translations[currentLanguage].armor_upgrade;
+    document.querySelector('.shop-item[data-id="6"] p:nth-child(2)').textContent = translations[currentLanguage].armor_desc;
+    document.querySelector('.shop-item[data-id="6"] p:nth-child(3)').textContent = `${translations[currentLanguage].price}: 4000 ${translations[currentLanguage].points}`;
     document.querySelectorAll('.buy-btn').forEach(btn => btn.textContent = translations[currentLanguage].buy);
     document.getElementById('shop-back').textContent = translations[currentLanguage].back;
     document.getElementById('game-over').querySelector('h2').textContent = translations[currentLanguage].game_over;
@@ -948,7 +1109,7 @@ function updateMissionsUI() {
         const missionElement = document.querySelector(`.mission[data-id="${id}"]`);
         if (missionElement) {
             const claimBtn = missionElement.querySelector('.claim-btn');
-            if (id <= 13) {
+            if (id <= 23 && id != 14 && id != 15 && id != 16 && id != 17 && id != 18) {
                 const progressElement = missionElement.querySelector('.progress');
                 switch (id) {
                     case '1':
@@ -994,6 +1155,23 @@ function updateMissionsUI() {
                     case '13':
                         progressElement.textContent = `${mission.quickKills}/3`;
                         break;
+                    case '19':
+                        progressElement.textContent = `${mission.sessionKilled}/50`;
+                        break;
+                    case '20':
+                        progressElement.textContent = `${mission.combo}/10`;
+                        break;
+                    case '21':
+                        const minutes21 = Math.floor(mission.noReloadTime / 60);
+                        const seconds21 = Math.floor(mission.noReloadTime % 60);
+                        progressElement.textContent = `${minutes21}:${seconds21.toString().padStart(2, '0')}/2:00`;
+                        break;
+                    case '22':
+                        progressElement.textContent = `${mission.fullHealthKills}/15`;
+                        break;
+                    case '23':
+                        progressElement.textContent = `${mission.sessionScore}/10000`;
+                        break;
                 }
             }
             
@@ -1010,7 +1188,7 @@ function updateShopUI() {
     document.querySelectorAll('.shop-item').forEach(item => {
         const buyBtn = item.querySelector('.buy-btn');
         const itemId = item.dataset.id;
-        const price = itemId === '1' ? 1000 : 2000;
+        const price = {1: 1000, 2: 2000, 3: 2500, 4: 1500, 5: 3000, 6: 4000}[itemId];
         buyBtn.disabled = GameData.totalScore < price;
         buyBtn.textContent = translations[currentLanguage].buy;
     });
@@ -1019,7 +1197,11 @@ function updateShopUI() {
 function buyItem(itemId) {
     const prices = {
         1: 1000,
-        2: 2000
+        2: 2000,
+        3: 2500,
+        4: 1500,
+        5: 3000,
+        6: 4000
     };
     
     const price = prices[itemId];
@@ -1031,6 +1213,18 @@ function buyItem(itemId) {
                 break;
             case '2':
                 GameData.damageMultiplier *= 1.25;
+                break;
+            case '3':
+                GameData.shotDelay = Math.max(50, GameData.shotDelay - 50);
+                break;
+            case '4':
+                GameData.maxAmmo += 10;
+                break;
+            case '5':
+                GameData.moveSpeed *= 1.2;
+                break;
+            case '6':
+                GameData.damageReduction *= 0.9;
                 break;
         }
         GameData.save();
