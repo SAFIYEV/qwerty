@@ -63,32 +63,44 @@ canvas {
     pointer-events: none;
 }
 
-#joystick-area {
+#movement-buttons {
     position: absolute;
     left: 20px;
     bottom: 20px;
-    width: 120px;
-    height: 120px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
     pointer-events: auto;
 }
 
-#joystick {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
+.movement-row {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
 }
 
-#joystick-head {
-    position: absolute;
-    top: 50%;
-    left: 50%;
+.movement-btn {
     width: 50px;
     height: 50px;
-    background: rgba(255, 255, 255, 0.5);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+
+.movement-btn:active {
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(0.95);
 }
 
 #action-buttons {
