@@ -13,6 +13,7 @@ body {
     font-family: Arial, sans-serif;
 }
 
+/* Предупреждение об ориентации */
 #orientation-warning {
     display: none;
     position: fixed;
@@ -52,6 +53,7 @@ canvas {
     height: 100%;
 }
 
+/* Мобильные элементы управления */
 #mobile-controls {
     position: fixed;
     bottom: 0;
@@ -61,7 +63,7 @@ canvas {
     pointer-events: none;
 }
 
-#joystick-area, #look-area {
+#joystick-area {
     position: absolute;
     left: 20px;
     bottom: 20px;
@@ -70,11 +72,7 @@ canvas {
     pointer-events: auto;
 }
 
-#look-area {
-    left: 160px;
-}
-
-#joystick, #look-joystick {
+#joystick {
     position: relative;
     width: 100%;
     height: 100%;
@@ -82,7 +80,7 @@ canvas {
     border-radius: 50%;
 }
 
-#joystick-head, #look-joystick-head {
+#joystick-head {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -104,15 +102,17 @@ canvas {
 }
 
 button {
-    padding: 15px 30px;
+    padding: 12px 24px;
     border: none;
-    border-radius: 25px;
+    border-radius: 20px;
     background: rgba(255, 255, 255, 0.2);
     color: white;
-    font-size: 18px;
+    font-size: 14px;
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s;
+    white-space: nowrap;
+    min-width: 120px;
 }
 
 button:active {
@@ -125,6 +125,7 @@ button:disabled {
     cursor: not-allowed;
 }
 
+/* Игровой интерфейс */
 #game-ui {
     position: fixed;
     top: 20px;
@@ -133,13 +134,17 @@ button:disabled {
     font-size: 18px;
     text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
     text-align: right;
-    z-index: 100;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 #game-ui div {
     margin-bottom: 10px;
 }
 
+/* Экраны меню */
 .screen {
     position: fixed;
     top: 0;
@@ -154,7 +159,6 @@ button:disabled {
     color: white;
     gap: 20px;
     padding: 20px;
-    overflow-y: auto;
 }
 
 .screen.active {
@@ -162,63 +166,264 @@ button:disabled {
 }
 
 .screen h1, .screen h2 {
-    font-size: 36px;
-    margin-bottom: 20px;
+    font-size: 24px;
+    margin-bottom: 15px;
     text-align: center;
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
+/* Адаптация для мобильных устройств */
+@media (max-width: 768px) {
+    .screen h1, .screen h2 {
+        font-size: 20px;
+    }
+    
+    button {
+        padding: 10px 20px;
+        font-size: 12px;
+        min-width: 100px;
+    }
+    
+    .missions-list {
+        grid-template-columns: 1fr;
+        max-height: 50vh;
+    }
+    
+    .shop-items {
+        grid-template-columns: 1fr;
+        max-height: 60vh;
+    }
+    
+    #game-ui {
+        font-size: 16px;
+        padding: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .screen h1, .screen h2 {
+        font-size: 18px;
+    }
+    
+    button {
+        padding: 8px 16px;
+        font-size: 11px;
+        min-width: 80px;
+    }
+    
+    .balance {
+        font-size: 16px;
+    }
+    
+    #game-ui {
+        font-size: 14px;
+        padding: 8px;
+    }
+}
+
 .balance {
-    font-size: 24px;
+    font-size: 20px;
     color: #4CAF50;
+    margin-bottom: 15px;
+}
+
+/* Меню выбора языка */
+.language-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.lang-btn {
+    padding: 12px 25px;
+    font-size: 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    border-radius: 20px;
+    transition: all 0.3s;
+    min-width: 200px;
+}
+
+.lang-btn:hover, .lang-btn:active {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: scale(1.05);
+}
+
+/* Задания */
+.mission-tabs {
+    display: flex;
+    gap: 10px;
     margin-bottom: 20px;
 }
 
-.missions-list, .shop-items {
-    display: grid;
+.tab-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    border-radius: 15px;
+    transition: all 0.3s;
+}
+
+.tab-btn.active {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+.missions-list {
+    display: none;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    max-width: 800px;
+    width: 100%;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.missions-list.active-tab {
+    display: grid;
+}
+
+.mission {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.mission h3 {
+    color: #4CAF50;
+    margin-bottom: 10px;
+}
+
+.progress {
+    margin: 10px 0;
+    font-size: 20px;
+    color: #ffeb3b;
+}
+
+/* Магазин */
+.shop-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
     max-width: 800px;
     width: 100%;
     max-height: 70vh;
     overflow-y: auto;
+    padding: 20px;
 }
 
-.mission, .shop-item {
+.shop-item {
     background: rgba(255, 255, 255, 0.1);
-    padding: 15px;
-    border-radius: 10px;
+    padding: 20px;
+    border-radius: 15px;
     text-align: center;
 }
 
-.mission h3, .shop-item h3 {
-    font-size: 20px;
-    margin-bottom: 10px;
-}
-
-.mission p, .shop-item p {
-    font-size: 16px;
-    margin-bottom: 10px;
-}
-
-.progress {
-    font-size: 16px;
+.shop-item h3 {
     color: #4CAF50;
     margin-bottom: 10px;
 }
 
+/* Кнопки действий */
+#shoot-btn {
+    background: #ff4444;
+    animation: pulse 2s infinite;
+}
+
+#reload-btn {
+    background: #4444ff;
+}
+
+.buy-btn {
+    background: #4CAF50;
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* Анимации */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Скроллбар */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+/* Социальные задания */
+.social-mission {
+    background: rgba(0, 132, 255, 0.1);
+    border: 1px solid rgba(0, 132, 255, 0.3);
+}
+
+.social-mission h3 {
+    color: #0084ff;
+}
+
 .social-link {
-    color: #1E90FF;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: #0088cc;
+    color: white;
     text-decoration: none;
-    font-size: 16px;
-    margin-bottom: 10px;
-    display: inline-block;
+    border-radius: 10px;
+    margin: 10px 0;
+    font-size: 18px;
+    transition: all 0.3s;
 }
 
 .social-link:hover {
-    text-decoration: underline;
+    background: #0099dd;
+    transform: scale(1.05);
 }
 
-#missions-back, #shop-back, #restart-btn, #menu-btn, #instructions-btn {
-    margin-top: 20px;
+.social-link i {
+    font-size: 24px;
+}
+
+.share-btn {
+    background: #0088cc;
+    color: white;
+    width: 100%;
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.share-btn i {
+    font-size: 20px;
+}
+
+.social-claim {
+    background: #4CAF50;
+    color: white;
+    width: 100%;
+}
+
+.social-claim:disabled {
+    background: #45a049;
+    opacity: 0.7;
 }
