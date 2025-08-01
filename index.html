@@ -8,10 +8,10 @@
 </head>
 <body>
     <div id="orientation-warning">Пожалуйста, поверните устройство горизонтально</div>
-    
+
     <div id="game-container">
         <canvas id="game"></canvas>
-        
+
         <div id="mobile-controls">
             <div id="joystick-area">
                 <div id="joystick">
@@ -28,22 +28,22 @@
                 <button id="reload-btn">ПЕРЕЗАРЯДКА</button>
             </div>
         </div>
-        
+
         <div id="game-ui">
             <div id="ammo-count">Патроны: 30</div>
             <div id="score-count">Очки: 0</div>
             <div id="health-count">Здоровье: 100</div>
         </div>
-        
+
         <div id="menu" class="screen">
             <h1>ZOMBIE SHOOTER 3D</h1>
             <div class="balance" id="total-score">Баланс: 0 очков</div>
             <button id="start-btn">НАЧАТЬ ИГРУ</button>
             <button id="missions-btn">ЗАДАНИЯ</button>
             <button id="shop-btn">МАГАЗИН</button>
-            <button id="language-btn">СМЕНИТЬ ЯЗЫК</button>
+            <button id="instructions-btn">ИНСТРУКЦИИ</button>
         </div>
-        
+
         <div id="missions" class="screen">
             <h2>ЗАДАНИЯ</h2>
             <div class="missions-list">
@@ -66,138 +66,111 @@
                     <button class="claim-btn" disabled>Получить награду</button>
                 </div>
                 <div class="mission" data-id="4">
-                    <h3>Убить 25 зомби</h3>
+                    <h3>Подписаться на TON Baku Hub</h3>
                     <p>Награда: 1500 очков</p>
-                    <div class="progress">0/25</div>
-                    <button class="claim-btn" disabled>Получить награду</button>
+                    <a href="https://t.me/tonbakuhub" target="_blank" class="social-link">@tonbakuhub</a>
+                    <button class="social-claim">Подтвердить подписку</button>
                 </div>
                 <div class="mission" data-id="5">
-                    <h3>Набрать 5000 очков</h3>
-                    <p>Награда: 3000 очков</p>
-                    <div class="progress">0/5000</div>
-                    <button class="claim-btn" disabled>Получить награду</button>
-                </div>
-                <div class="mission" data-id="6">
-                    <h3>Выжить 10 минут</h3>
-                    <p>Награда: 4000 очков</p>
-                    <div class="progress">0:00/10:00</div>
-                    <button class="claim-btn" disabled>Получить награду</button>
-                </div>
-                <div class="mission" data-id="7">
-                    <h3>Сделать 50 выстрелов</h3>
-                    <p>Награда: 1000 очков</p>
-                    <div class="progress">0/50</div>
-                    <button class="claim-btn" disabled>Получить награду</button>
-                </div>
-                <div class="mission" data-id="8">
-                    <h3>Перезарядить 20 раз</h3>
-                    <p>Награда: 800 очков</p>
-                    <div class="progress">0/20</div>
-                    <button class="claim-btn" disabled>Получить награду</button>
-                </div>
-                <div class="mission" data-id="9">
-                    <h3>Убить 5 зомби без урона</h3>
-                    <p>Награда: 2000 очков</p>
-                    <div class="progress">0/5</div>
-                    <button class="claim-btn" disabled>Получить награду</button>
-                </div>
-                <div class="mission" data-id="10">
-                    <h3>Собрать 100 патронов</h3>
-                    <p>Награда: 1500 очков</p>
-                    <div class="progress">0/100</div>
-                    <button class="claim-btn" disabled>Получить награду</button>
-                </div>
-                <div class="mission" data-id="11">
-                    <h3>Убить зомби с 1 выстрела</h3>
-                    <p>Награда: 1000 очков</p>
-                    <div class="progress">0/1</div>
-                    <button class="claim-btn" disabled>Получить награду</button>
-                </div>
-                <div class="mission" data-id="12">
-                    <h3>Выжить с 10% здоровья</h3>
-                    <p>Награда: 2500 очков</p>
-                    <div class="progress">0/1</div>
-                    <button class="claim-btn" disabled>Получить награду</button>
-                </div>
-                <div class="mission" data-id="13">
-                    <h3>Убить 3 зомби за 10 секунд</h3>
-                    <p>Награда: 2000 очков</p>
-                    <div class="progress">0/3</div>
-                    <button class="claim-btn" disabled>Получить награду</button>
-                </div>
-                <div class="mission" data-id="19">
-                    <h3>Убить 50 зомби за игру</h3>
-                    <p>Награда: 5000 очков</p>
-                    <div class="progress">0/50</div>
-                    <button class="claim-btn" disabled>Получить награду</button>
-                </div>
-                <div class="mission" data-id="20">
-                    <h3>Достичь комбо из 10 убийств</h3>
-                    <p>Награда: 3000 очков</p>
-                    <div class="progress">0/10</div>
-                    <button class="claim-btn" disabled>Получить награду</button>
-                </div>
-                <div class="mission" data-id="21">
-                    <h3>Выжить без перезарядки 2 минуты</h3>
-                    <p>Награда: 2500 очков</p>
-                    <div class="progress">0:00/2:00</div>
-                    <button class="claim-btn" disabled>Получить награду</button>
-                </div>
-                <div class="mission" data-id="22">
-                    <h3>Убить 15 зомби с полным здоровьем</h3>
-                    <p>Награда: 3500 очков</p>
-                    <div class="progress">0/15</div>
-                    <button class="claim-btn" disabled>Получить награду</button>
-                </div>
-                <div class="mission" data-id="23">
-                    <h3>Набрать 10000 очков за игру</h3>
-                    <p>Награда: 6000 очков</p>
-                    <div class="progress">0/10000</div>
-                    <button class="claim-btn" disabled>Получить награду</button>
-                </div>
-                <h2>СОЦИАЛЬНЫЕ ЗАДАНИЯ</h2>
-                <div class="mission social-mission" data-id="14">
-                    <h3>Подписаться на Telegram</h3>
-                    <p>Награда: 1500 очков</p>
-                    <a href="https://t.me/Soko_inu" target="_blank" class="social-link">
-                        @Soko_inu
-                    </a>
-                    <button class="social-claim">Подтвердить подписку</button>
-                </div>
-                <div class="mission social-mission" data-id="15">
-                    <h3>Подписаться на Telegram</h3>
-                    <p>Награда: 1500 очков</p>
-                    <a href="https://t.me/tonsocietycahub" target="_blank" class="social-link">
-                        @tonsocietycahub
-                    </a>
-                    <button class="social-claim">Подтвердить подписку</button>
-                </div>
-                <div class="mission social-mission" data-id="16">
-                    <h3>Подписаться на X</h3>
-                    <p>Награда: 1000 очков</p>
-                    <a href="https://x.com/SokoinuTON" target="_blank" class="social-link">
-                        @SokoinuTON
-                    </a>
-                    <button class="social-claim">Подтвердить подписку</button>
-                </div>
-                <div class="mission social-mission" data-id="17">
-                    <h3>Подписаться на YouTube</h3>
-                    <p>Награда: 2000 очков</p>
-                    <a href="https://www.youtube.com/@RealSokoInu/videos" target="_blank" class="social-link">
-                        @RealSokoInu
-                    </a>
-                    <button class="social-claim">Подтвердить подписку</button>
-                </div>
-                <div class="mission social-mission" data-id="18">
                     <h3>Поделиться игрой</h3>
                     <p>Награда: 1000 очков</p>
                     <button class="share-btn">Поделиться</button>
                     <button class="social-claim">Получить награду</button>
                 </div>
+                <div class="mission" data-id="6">
+                    <h3>Убить 25 зомби</h3>
+                    <p>Награда: 1500 очков</p>
+                    <div class="progress">0/25</div>
+                    <button class="claim-btn" disabled>Получить награду</button>
+                </div>
+                <div class="mission" data-id="7">
+                    <h3>Набрать 5000 очков</h3>
+                    <p>Награда: 3000 очков</p>
+                    <div class="progress">0/5000</div>
+                    <button class="claim-btn" disabled>Получить награду</button>
+                </div>
+                <div class="mission" data-id="8">
+                    <h3>Выжить 10 минут</h3>
+                    <p>Награда: 4000 очков</p>
+                    <div class="progress">0:00/10:00</div>
+                    <button class="claim-btn" disabled>Получить награду</button>
+                </div>
+                <div class="mission" data-id="9">
+                    <h3>Сделать 50 выстрелов</h3>
+                    <p>Награда: 1000 очков</p>
+                    <div class="progress">0/50</div>
+                    <button class="claim-btn" disabled>Получить награду</button>
+                </div>
+                <div class="mission" data-id="10">
+                    <h3>Перезарядить 20 раз</h3>
+                    <p>Награда: 800 очков</p>
+                    <div class="progress">0/20</div>
+                    <button class="claim-btn" disabled>Получить награду</button>
+                </div>
+                <div class="mission" data-id="11">
+                    <h3>Убить 5 зомби без урона</h3>
+                    <p>Награда: 2000 очков</p>
+                    <div class="progress">0/5</div>
+                    <button class="claim-btn" disabled>Получить награду</button>
+                </div>
+                <div class="mission" data-id="12">
+                    <h3>Собрать 100 патронов</h3>
+                    <p>Награда: 1500 очков</p>
+                    <div class="progress">0/100</div>
+                    <button class="claim-btn" disabled>Получить награду</button>
+                </div>
+                <div class="mission" data-id="13">
+                    <h3>Убить зомби с 1 выстрела</h3>
+                    <p>Награда: 1000 очков</p>
+                    <div class="progress">0/1</div>
+                    <button class="claim-btn" disabled>Получить награду</button>
+                </div>
+                <div class="mission" data-id="14">
+                    <h3>Выжить с 10% здоровья</h3>
+                    <p>Награда: 2500 очков</p>
+                    <div class="progress">0/1</div>
+                    <button class="claim-btn" disabled>Получить награду</button>
+                </div>
+                <div class="mission" data-id="15">
+                    <h3>Убить 3 зомби за 10 секунд</h3>
+                    <p>Награда: 2000 очков</p>
+                    <div class="progress">0/3</div>
+                    <button class="claim-btn" disabled>Получить награду</button>
+                </div>
+                <div class="mission" data-id="16">
+                    <h3>Убить 50 зомби за игру</h3>
+                    <p>Награда: 5000 очков</p>
+                    <div class="progress">0/50</div>
+                    <button class="claim-btn" disabled>Получить награду</button>
+                </div>
+                <div class="mission" data-id="17">
+                    <h3>Достичь комбо из 10 убийств</h3>
+                    <p>Награда: 3000 очков</p>
+                    <div class="progress">0/10</div>
+                    <button class="claim-btn" disabled>Получить награду</button>
+                </div>
+                <div class="mission" data-id="18">
+                    <h3>Выжить без перезарядки 2 минуты</h3>
+                    <p>Награда: 2500 очков</p>
+                    <div class="progress">0:00/2:00</div>
+                    <button class="claim-btn" disabled>Получить награду</button>
+                </div>
+                <div class="mission" data-id="19">
+                    <h3>Убить 15 зомби с полным здоровьем</h3>
+                    <p>Награда: 3500 очков</p>
+                    <div class="progress">0/15</div>
+                    <button class="claim-btn" disabled>Получить награду</button>
+                </div>
+                <div class="mission" data-id="20">
+                    <h3>Набрать 10000 очков за игру</h3>
+                    <p>Награда: 6000 очков</p>
+                    <div class="progress">0/10000</div>
+                    <button class="claim-btn" disabled>Получить награду</button>
+                </div>
             </div>
             <button id="missions-back">НАЗАД</button>
         </div>
-        
+
         <div id="shop" class="screen">
             <h2>МАГАЗИН</h2>
             <div class="shop-items">
@@ -237,10 +210,22 @@
                     <p>Цена: 4000 очков</p>
                     <button class="buy-btn">Купить</button>
                 </div>
+                <div class="shop-item" data-id="7">
+                    <h3>Мощный выстрел</h3>
+                    <p>+50% к урону одного выстрела</p>
+                    <p>Цена: 3500 очков</p>
+                    <button class="buy-btn">Купить</button>
+                </div>
+                <div class="shop-item" data-id="8">
+                    <h3>Быстрая перезарядка</h3>
+                    <p>-500мс к времени перезарядки</p>
+                    <p>Цена: 2000 очков</p>
+                    <button class="buy-btn">Купить</button>
+                </div>
             </div>
             <button id="shop-back">НАЗАД</button>
         </div>
-        
+
         <div id="game-over" class="screen">
             <h2>ИГРА ОКОНЧЕНА</h2>
             <p>Ваш счет: <span id="final-score">0</span></p>
@@ -249,7 +234,7 @@
             <button id="menu-btn">В ГЛАВНОЕ МЕНЮ</button>
         </div>
     </div>
-    
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script src="game.js"></script>
 </body>
