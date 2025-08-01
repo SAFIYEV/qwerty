@@ -174,7 +174,7 @@ button:disabled {
     margin-bottom: 20px;
 }
 
-.missions-list {
+.missions-list, .shop-items {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
@@ -219,6 +219,6 @@ button:disabled {
     text-decoration: underline;
 }
 
-#missions-back, #shop-back, #restart-btn, #menu-btn {
+#missions-back, #shop-back, #restart-btn, #menu-btn, #instructions-btn {
     margin-top: 20px;
 }
